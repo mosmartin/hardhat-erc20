@@ -9,6 +9,7 @@ contract ERC20 {
     uint256 public totalSupply;
 
     mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
 
     constructor(string memory _name, string memory _symbol) {
         name = _name;
@@ -19,16 +20,50 @@ contract ERC20 {
         return 18;
     }
 
-    function transfer(address _to, uint256 _value)
+    function transfer(address to, uint256 value)
         external
         returns (bool success)
     {
-        require(_to != address(0), "ERC20: transfer to the zero address");
+        return _transfer(msg.sender, to, value);
+    }
 
-        require(balanceOf[msg.sender] >= _value, "ERC20: transfer amount exceeds balance");
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool success) {
+        require(
+            allowance[from][msg.sender] >= value,
+            "ERC20: transfer amount exceeds allowance"
+        );
 
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
+        allowance[from][msg.sender] -= value;
+        return _transfer(from, to, value);
+    }
+
+    function approve(address spender, uint256 value)
+        external
+        returns (bool success)
+    {
+        allowance[msg.sender][spender] = value;
+        
+        return true;
+    }
+
+    function _transfer(
+        address sender,
+        address to,
+        uint256 value
+    ) private returns (bool success) {
+        require(to != address(0), "ERC20: transfer to the zero address");
+
+        require(
+            balanceOf[sender] >= value,
+            "ERC20: transfer amount exceeds balance"
+        );
+
+        balanceOf[sender] -= value;
+        balanceOf[to] += value;
 
         return true;
     }
