@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.17;
 
 // import "hardhat/console.sol";
 
@@ -14,6 +14,8 @@ contract ERC20 {
     constructor(string memory _name, string memory _symbol) {
         name = _name;
         symbol = _symbol;
+
+        _mint(msg.sender, 100e18);
     }
 
     function decimals() external pure returns (uint8) {
@@ -66,5 +68,12 @@ contract ERC20 {
         balanceOf[to] += value;
 
         return true;
+    }
+
+    function _mint(address to, uint256 value) internal {
+        require(to != address(0), "ERC20: mint to the zero address");
+
+        totalSupply += value;
+        balanceOf[to] += value;
     }
 }
