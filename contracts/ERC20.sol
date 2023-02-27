@@ -8,6 +8,13 @@ contract ERC20 {
     string public symbol;
     uint256 public totalSupply;
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
+
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
 
@@ -40,6 +47,9 @@ contract ERC20 {
         );
 
         allowance[from][msg.sender] -= value;
+
+        emit Approval(from, msg.sender, allowance[from][msg.sender]); 
+
         return _transfer(from, to, value);
     }
 
@@ -48,7 +58,9 @@ contract ERC20 {
         returns (bool success)
     {
         allowance[msg.sender][spender] = value;
-        
+
+        emit Approval(msg.sender, spender, value);
+
         return true;
     }
 
@@ -67,6 +79,8 @@ contract ERC20 {
         balanceOf[sender] -= value;
         balanceOf[to] += value;
 
+        emit Transfer(sender, to, value);
+
         return true;
     }
 
@@ -75,5 +89,7 @@ contract ERC20 {
 
         totalSupply += value;
         balanceOf[to] += value;
+
+        emit Transfer(address(0), to, value);
     }
 }
